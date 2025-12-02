@@ -9,12 +9,14 @@ Developers will learn by building a real system that integrates with Slack, uses
 
 ## 🧰 Tech Stack
 
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi)
+![Python](https://img.shields.io/badge/Python-3.13+-blue?logo=python)
+![Poetry](https://img.shields.io/badge/Poetry-Dependency%20Manager-60A5FA?logo=poetry)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.123-009688?logo=fastapi)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.x-red?logo=sqlalchemy)
 ![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange)
 ![Slack Bolt](https://img.shields.io/badge/Slack%20Bolt-Bot-green?logo=slack)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-316192?logo=postgresql)
+![SQLite](https://img.shields.io/badge/SQLite-Local%20Dev-003B57?logo=sqlite)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)
 
 ## 🚀 Getting Started
@@ -25,20 +27,30 @@ git clone https://github.com/jaya-academy/sports-program.git
 cd sports-program
 ```
 
-### 2. Create your environment
-```
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+### 2. Install dependencies
+```bash
+poetry install
 ```
 
-### 3. Run migrations
-```
-alembic upgrade head
+### 3. Configure environment
+```bash
+cp .env.example .env
+# Edit .env with your settings
 ```
 
-### 4. Start the API
+### 4. Run migrations
+```bash
+poetry run alembic upgrade head
 ```
+
+### 5. Start the API
+```bash
+poetry run uvicorn app.main:app --reload
+```
+
+### Alternative: Enter Poetry shell
+```bash
+poetry shell
 uvicorn app.main:app --reload
 ```
 
@@ -58,8 +70,8 @@ This project encourages:
 - Code reviews and refactoring
 
 ## 🧪 Tests
-```
-pytest
+```bash
+poetry run pytest
 ```
 
 ## 🏁 License
