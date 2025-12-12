@@ -20,7 +20,7 @@ class ActivityService:
         self.user_service = user_service
 
 
-    async def find_activities(self, slack_id: str):
+    async def find_activities_by_user(self, slack_id: str):
         user_found = await self.user_service.find_user_by_slack_id(slack_id)
         if not user_found:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with this slack_id not found")
@@ -30,7 +30,7 @@ class ActivityService:
         return activities
 
 
-    async def find_activities_by_program(
+    async def find_activities_by_user_and_program(
         self,
         program_id: int,
         slack_id: str,
@@ -44,7 +44,7 @@ class ActivityService:
         return activities
 
 
-    async def insert_activity_by_program(
+    async def insert_activity(
         self,
         activity_create: ActivityCreate,
         program_id: int,
