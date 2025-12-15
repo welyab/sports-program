@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.program import ProgramCreate
-from app.schemas.program import Program
+from app.schemas.program import ProgramCreate
+from app.models.program import Program
 from app.core.database import get_db
 from app.services.programs.find_by_name import FindByName
 
