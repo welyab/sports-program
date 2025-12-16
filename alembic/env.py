@@ -14,7 +14,8 @@ from app.models.base import *  # noqa: F401, F403
 config = context.config
 
 # Set the sqlalchemy.url from settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+aiosqlite", ""))
+config.set_main_option(
+    "sqlalchemy.url", settings.DATABASE_URL.replace("+aiosqlite", ""))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
