@@ -1,7 +1,8 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
+from app.exceptions.business import BusinessRuleViolationError, EntityNotFoundError, DatabaseError
 from app.core.database import get_db
 from app.schemas.activity import ActivityCreate
 from app.models.activity import Activity
@@ -53,12 +54,9 @@ class Create:
         try:
             await self.db.commit()
             await self.db.refresh(db_activity)
-        except Exception as e:
+        except Exception:
             await self.db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"An error occurred: {str(e)}"
-            )
+            raise DatabaseError()
 
         return db_activity
 
@@ -73,17 +71,12 @@ class Create:
     async def validate_program(self, program_id, performed_at):
         program_found = await self.program_find_by_id.execute(program_id)
         if not program_found:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Program with this program_id not found")
+            raise EntityNotFoundError("Program", program_id)
 
         if performed_at < program_found.start_date:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Activity date is outside the program date range"
-            )
+            raise BusinessRuleViolationError(
+                "Activity date is outside the program date range")
 
         if program_found.end_date and performed_at > program_found.end_date:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Activity date is outside the program date range"
-            )
+            raise BusinessRuleViolationError(
+                "Activity date is outside the program date range")
