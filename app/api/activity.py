@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, Path
+from fastapi import APIRouter, Depends, Header, Path, Query
 from typing import List, Annotated
 
 from app.schemas.activity import ActivityCreate, ActivityResponse
@@ -17,24 +17,26 @@ FindByUserAndProgramServiceDep = Annotated[FindByUserAndProgram, Depends()]
 async def get_activities_by_user(
     service: FindByUserServiceDep,
     x_slack_user_id: str = Header(..., title="ID Slack User"),
+    reference_date: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
 ):
-    return await service.execute(slack_id=x_slack_user_id)
+    return await service.execute(x_slack_user_id, reference_date)
 
 
-@router.get("/programs/{program_id}/activities", response_model=List[ActivityResponse])
+@router.get("/programs/{slack_channel}/activities", response_model=List[ActivityResponse])
 async def get_activities_by_user_and_program(
     service: FindByUserAndProgramServiceDep,
-    program_id: int = Path(..., title="ID Program", ge=1),
+    slack_channel: str = Path(..., title="Program Slack Channel"),
     x_slack_user_id: str = Header(..., title="ID Slack User"),
+    reference_date: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
 ):
-    return await service.execute(program_id, x_slack_user_id)
+    return await service.execute(slack_channel, x_slack_user_id, reference_date)
 
 
-@router.post("/programs/{program_id}/activities", response_model=ActivityResponse)
+@router.post("/programs/{slack_channel}/activities", response_model=ActivityResponse)
 async def create_activity(
     service: CreateServiceDep,
     activity_create: ActivityCreate,
-    program_id: int = Path(..., title="ID Program", ge=1),
+    slack_channel: str = Path(..., title="Program Slack Channel"),
     x_slack_user_id: str = Header(..., title="ID Slack User"),
 ):
-    return await service.execute(activity_create, program_id, x_slack_user_id)
+    return await service.execute(activity_create, slack_channel, x_slack_user_id)
