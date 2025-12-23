@@ -32,7 +32,7 @@ class FindByUser:
             .join(Activity.program)
             .where(
                 Activity.user_id == user_found.id,
-                *Activity.filter_date_tz(ref.year, ref.month)
+                Activity.filter_date_tz(ref.year, ref.month)
             )
             .options(
                 contains_eager(Activity.user),

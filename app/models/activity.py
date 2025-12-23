@@ -1,6 +1,7 @@
-from sqlalchemy import String, Integer, DateTime, func, ForeignKey, extract
+from sqlalchemy import String, Integer, DateTime, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
+import calendar
 
 from app.core.database import Base
 
@@ -24,9 +25,9 @@ class Activity(Base):
 
     @classmethod
     def filter_date_tz(cls, year: int, month: int, tz: str = "America/Sao_Paulo"):
-        local_date = func.timezone(tz, cls.performed_at)
+        start_date = datetime(year, month, 1)
 
-        return (
-            extract('year', local_date) == year,
-            extract('month', local_date) == month
-        )
+        last_day = calendar.monthrange(year, month)[1]
+        end_date = datetime(year, month, last_day, 23, 59, 59)
+
+        return cls.performed_at.between(start_date, end_date)

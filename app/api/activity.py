@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, Path, Query
+from fastapi import APIRouter, Depends, Header, Path, Query, Response, status
 from typing import List, Annotated
 
 from app.schemas.activity import ActivityCreate, ActivityResponse
@@ -32,11 +32,12 @@ async def get_activities_by_user_and_program(
     return await service.execute(slack_channel, x_slack_user_id, reference_date)
 
 
-@router.post("/programs/{slack_channel}/activities", response_model=ActivityResponse)
+@router.post("/programs/{slack_channel}/activities", status_code=status.HTTP_201_CREATED)
 async def create_activity(
     service: CreateServiceDep,
     activity_create: ActivityCreate,
     slack_channel: str = Path(..., title="Program Slack Channel"),
     x_slack_user_id: str = Header(..., title="ID Slack User"),
 ):
-    return await service.execute(activity_create, slack_channel, x_slack_user_id)
+    await service.execute(activity_create, slack_channel, x_slack_user_id)
+    return Response(status_code=status.HTTP_201_CREATED)

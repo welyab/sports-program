@@ -46,7 +46,7 @@ class FindByUserAndProgram:
             .where(
                 Activity.user_id == user_found.id,
                 Program.slack_channel == program_slack_channel,
-                *Activity.filter_date_tz(ref.year, ref.month)
+                Activity.filter_date_tz(ref.year, ref.month)
             )
             .options(
                 contains_eager(Activity.user),
