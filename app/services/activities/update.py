@@ -36,7 +36,7 @@ class Update:
         slack_id: str,
     ):
         user_id = await self.validate_user(slack_id)
-        db_activity = await self.validate_activity(id, user_id)
+        db_activity = await self.find_by_id.execute(id, slack_id)
         program_found = await self.validate_program(db_activity.program_id)
 
         if activity_update.performed_at is not None and activity_update.performed_at != db_activity.performed_at:
@@ -86,16 +86,6 @@ class Update:
         if not program_found:
             raise EntityNotFoundError("Program", program_id)
         return program_found
-
-    async def validate_activity(self, id, user_id):
-        db_activity = await self.find_by_id.execute(id)
-        if not db_activity:
-            raise EntityNotFoundError("Activity", id)
-        if db_activity.user_id != user_id:
-            raise BusinessRuleViolationError(
-                "User is not authorized to update this activity"
-            )
-        return db_activity
 
     def validate_performed_at(self, program_found, performed_at):
         if performed_at > datetime.now():

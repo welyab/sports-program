@@ -10,6 +10,7 @@ from app.schemas.activity import (
 )
 from app.services.activities.create import Create
 from app.services.activities.update import Update
+from app.services.activities.find_by_id import FindById
 from app.services.activities.find_by_user import FindByUser
 from app.services.activities.find_by_user_and_program import FindByUserAndProgram
 
@@ -17,6 +18,7 @@ router = APIRouter(tags=["Activity"])
 
 CreateServiceDep = Annotated[Create, Depends()]
 UpdateServiceDep = Annotated[Update, Depends()]
+FindByIdServiceDep = Annotated[FindById, Depends()]
 FindByUserServiceDep = Annotated[FindByUser, Depends()]
 FindByUserAndProgramServiceDep = Annotated[FindByUserAndProgram, Depends()]
 
@@ -28,6 +30,15 @@ async def get_activities_by_user(
     reference_date: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
 ):
     return await service.execute(x_slack_user_id, reference_date)
+
+
+@router.get("/activities/{id}", response_model=ActivityResponse)
+async def get_activities_by_id(
+    service: FindByIdServiceDep,
+    x_slack_user_id: str = Header(..., title="ID Slack User"),
+    id: int = Path(..., title="Activity ID"),
+):
+    return await service.execute(id, x_slack_user_id)
 
 
 @router.patch(
