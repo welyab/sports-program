@@ -27,6 +27,13 @@ class ActivityCreate(ActivityBase):
         return value
 
 
+class ActivitySummaryResponse(BaseModel):
+    id: int
+    count_month: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ActivityResponse(ActivityBase):
     id: int
     created_at: datetime

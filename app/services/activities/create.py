@@ -4,13 +4,14 @@ from datetime import datetime
 
 from app.exceptions.business import BusinessRuleViolationError, EntityNotFoundError, DatabaseError
 from app.core.database import get_db
-from app.schemas.activity import ActivityCreate
 from app.models.activity import Activity
+from app.schemas.activity import ActivityCreate, ActivitySummaryResponse
 from app.schemas.user import UserCreate
 from app.services.users.find_by_slack_id import FindBySlackId
 from app.services.users.create import Create
 from app.services.activities.check_activity_same_day import CheckActivitySameDay
 from app.services.programs.find_by_slack_channel import FindBySlackChannel
+from app.services.activities.count_monthly import CountActivitiesService
 
 
 class Create:
@@ -20,13 +21,15 @@ class Create:
         user_find_by_slack_id: FindBySlackId = Depends(),
         user_create: Create = Depends(),
         check_activity_same_day: CheckActivitySameDay = Depends(),
-        program_find_by_slack_channel: FindBySlackChannel = Depends()
+        program_find_by_slack_channel: FindBySlackChannel = Depends(),
+        count_service: CountActivitiesService = Depends()
     ):
         self.db = db
         self.user_find_by_slack_id = user_find_by_slack_id
         self.user_create = user_create
         self.check_activity_same_day = check_activity_same_day
         self.program_find_by_slack_channel = program_find_by_slack_channel
+        self.count_service = count_service
 
     async def execute(
         self,
@@ -60,6 +63,16 @@ class Create:
         except Exception:
             await self.db.rollback()
             raise DatabaseError()
+
+        total_month = await self.count_service.execute(
+            user_id=user_id,
+            performed_at=db_activity.performed_at
+        )
+
+        return ActivitySummaryResponse(
+            id=db_activity.id,
+            count_month=total_month
+        )
 
     async def validate_user(self, slack_id):
         user_found = await self.user_find_by_slack_id.execute(slack_id)
