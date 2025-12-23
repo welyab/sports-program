@@ -8,38 +8,34 @@ from app.schemas.user import UserBase
 from app.utils.date_validator import is_within_allowed_window
 
 
+class DateValidation(BaseModel):
+    @field_validator("performed_at", check_fields=False)
+    @classmethod
+    def validate_performed_at(cls, value: datetime | None):
+        if value is None:
+            return value
+
+        if not is_within_allowed_window(value):
+            raise BusinessRuleViolationError(
+                "The date of the activity must be in the current or previous month."
+            )
+        return value
+
+
 class ActivityBase(BaseModel):
     description: str
     evidence_url: str | None = None
     performed_at: datetime | None = None
 
 
-class ActivityCreate(ActivityBase):
+class ActivityCreate(ActivityBase, DateValidation):
     pass
 
-    @field_validator("performed_at")
-    @classmethod
-    def validate_performed_at(cls, value: datetime):
-        if not is_within_allowed_window(value):
-            raise BusinessRuleViolationError(
-                "The date of the activity must be in the current or previous month."
-            )
-        return value
 
-
-class ActivityUpdate(ActivityBase):
+class ActivityUpdate(ActivityBase, DateValidation):
     description: str | None = None
     evidence_url: str | None = None
     performed_at: datetime | None = None
-
-    @field_validator("performed_at")
-    @classmethod
-    def validate_performed_at(cls, value: datetime):
-        if not is_within_allowed_window(value):
-            raise BusinessRuleViolationError(
-                "The date of the activity must be in the current or previous month."
-            )
-        return value
 
     model_config = ConfigDict(extra='forbid')
 

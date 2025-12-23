@@ -61,9 +61,9 @@ class Update:
         try:
             await self.db.commit()
             await self.db.refresh(db_activity)
-        except Exception:
+        except Exception as e:
             await self.db.rollback()
-            raise DatabaseError()
+            raise DatabaseError() from e
 
         total_month = await self.count_service.execute(
             user_id=user_id,
